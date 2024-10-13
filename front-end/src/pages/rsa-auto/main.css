@@ -1,0 +1,10 @@
+select {
+    min-width: 120px;
+    margin-top: 10px;
+}
+
+.select-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
