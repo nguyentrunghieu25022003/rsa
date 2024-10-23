@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./main.css";
 
+// Kiểm tra số nguyên tố
 const isPrime = (num) => {
   if (num <= 1) return false;
   for (let i = 2; i <= Math.sqrt(num); i++) {
@@ -9,7 +10,7 @@ const isPrime = (num) => {
   return true;
 };
 
-// Hàm tìm ước chung lớn nhất (gcd)
+// Tìm ước chung lớn nhất (gcd)
 const gcd = (a, b) => {
   while (b !== 0) {
     [a, b] = [b, a % b];
@@ -17,11 +18,10 @@ const gcd = (a, b) => {
   return a;
 };
 
-// Hàm tính nghịch đảo modulo
+// Tính nghịch đảo modulo
 const modInverse = (e, phi) => {
   let m0 = phi, t, q;
-  let x0 = 0,
-    x1 = 1;
+  let x0 = 0, x1 = 1;
 
   if (phi === 1) {
     return 0;
@@ -46,35 +46,35 @@ const modInverse = (e, phi) => {
   return x1;
 };
 
-// Hàm chuyển đổi ký tự thành số
+// Chuyển đổi ký tự thành số
 const charToNumber = (char) => {
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   return alphabet.indexOf(char) + 1;
 };
 
-// Hàm chuyển đổi số thành ký tự
+// Chuyển đổi số thành ký tự
 const numberToChar = (num) => {
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   return alphabet[num - 1];
 };
 
-// Hàm mã hóa
+// Mã hóa
 const encrypt = (m, e, n) => {
   const encrypted = BigInt(m) ** BigInt(e) % BigInt(n);
   return encrypted.toString();
 };
 
-// Hàm giải mã
+// Giải mã
 const decrypt = (c, d, n) => {
   const decrypted = BigInt(c) ** BigInt(d) % BigInt(n);
   return decrypted.toString();
 };
 
-// Hàm chọn ngẫu nhiên e sao cho gcd(e, φ(n)) = 1
+// Chọn ngẫu nhiên e sao cho gcd(e, φ(n)) = 1
 const chooseRandomE = (phi) => {
-  let e = 2 + Math.floor(Math.random() * (phi - 2)); // Chọn ngẫu nhiên e từ (2, phi-1)
+  let e = 2 + Math.floor(Math.random() * (phi - 2));
   while (gcd(e, phi) !== 1) {
-    e = 2 + Math.floor(Math.random() * (phi - 2)); // Chọn lại nếu e không nguyên tố cùng nhau với phi
+    e = 2 + Math.floor(Math.random() * (phi - 2));
   }
   return e;
 };
@@ -92,34 +92,26 @@ const RsaComponent = () => {
   const [cipherText, setCipherText] = useState([]);
   const [decryptedMessage, setDecryptedMessage] = useState("");
 
-  // Hàm tính toán RSA dựa trên p và q do người dùng nhập
+  // Tính toán RSA
   const calculateRSA = () => {
-    const pNum = parseInt(p); // Chuyển đổi p sang số nguyên
-    const qNum = parseInt(q); // Chuyển đổi q sang số nguyên
+    const pNum = parseInt(p);
+    const qNum = parseInt(q);
 
     if (!isPrime(pNum) || !isPrime(qNum)) {
       alert("Vui lòng nhập các số nguyên tố hợp lệ cho p và q!");
       return;
     }
 
-    // Ràng buộc 2: Đảm bảo p và q khác nhau
     if (pNum === qNum) {
       alert("p và q phải là hai số nguyên tố khác nhau!");
-      return;
-    }
-
-    if (!Number.isInteger(pNum) || !Number.isInteger(qNum) || pNum <= 1 || qNum <= 1) {
-      alert("Vui lòng nhập số nguyên tố hợp lệ cho p và q!");
       return;
     }
 
     const nVal = pNum * qNum;
     const phiVal = (pNum - 1) * (qNum - 1);
 
-    // Chọn giá trị e ngẫu nhiên sao cho gcd(e, φ(n)) = 1
     const eVal = chooseRandomE(phiVal);
 
-    // Tính d bằng thuật toán Euclid mở rộng
     const dVal = modInverse(eVal, phiVal);
 
     setN(nVal);
@@ -130,10 +122,13 @@ const RsaComponent = () => {
     setPrivateKey({ d: dVal, n: nVal });
   };
 
-  // Hàm xử lý mã hóa thông điệp
+  // Mã hóa thông điệp
   const handleEncrypt = () => {
     if (message && e && n) {
-      const messageNumbers = message.toUpperCase().split("").map(charToNumber);
+      const messageNumbers = message.toUpperCase().split("").map((char) => {
+          const number = charToNumber(char);
+          return number !== 0 ? number : 27;
+        });
 
       const encryptedNumbers = messageNumbers.map((m) => encrypt(m, e, n));
       setCipherText(encryptedNumbers);
@@ -142,27 +137,22 @@ const RsaComponent = () => {
     }
   };
 
-  // Hàm xử lý giải mã thông điệp
+  // Giải mã thông điệp
   const handleDecrypt = () => {
     if (cipherText.length > 0 && d && n) {
       const decryptedNumbers = cipherText.map((c) => decrypt(c, d, n));
-      
-      const decryptedChars = decryptedNumbers.map((m) => {
-          const decryptedInt = parseInt(m);
 
-          if (decryptedInt >= 1 && decryptedInt <= 26) {
-              return numberToChar(decryptedInt);
-          } else {
-              console.error(`Invalid decryption value: ${decryptedInt}`);
-              return "?";
-          }
+      const decryptedChars = decryptedNumbers.map((m) => {
+        const decryptedInt = parseInt(m);
+        return decryptedInt >= 1 && decryptedInt <= 26
+          ? numberToChar(decryptedInt)
+          : " ";
       });
       setDecryptedMessage(decryptedChars.join(""));
     } else {
       alert("Vui lòng mã hóa thông điệp trước khi giải mã.");
     }
   };
-
 
   return (
     <div style={{ padding: "20px" }}>
@@ -187,7 +177,7 @@ const RsaComponent = () => {
           />
         </label>
       </div>
-      
+
       <button onClick={calculateRSA}>Tính toán RSA</button>
       {n && (
         <div>
@@ -204,6 +194,7 @@ const RsaComponent = () => {
           </p>
         </div>
       )}
+
       <div>
         <h2>Mã hóa thông điệp</h2>
         <label>
@@ -221,6 +212,7 @@ const RsaComponent = () => {
           </p>
         )}
       </div>
+
       <div>
         <h2>Giải mã thông điệp</h2>
         <button onClick={handleDecrypt}>Giải mã</button>
