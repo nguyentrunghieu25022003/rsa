@@ -195,6 +195,7 @@ const RsaComponent = () => {
             type="number"
             value={p}
             onChange={(e) => setP(e.target.value)}
+            required
           />
         </label>
       </div>
@@ -206,6 +207,7 @@ const RsaComponent = () => {
             type="number"
             value={q}
             onChange={(e) => setQ(e.target.value)}
+            required
           />
         </label>
       </div>
@@ -226,6 +228,7 @@ const RsaComponent = () => {
             value={e}
             onChange={(e) => setE(e.target.value)}
             placeholder="Enter value for e"
+            required
           />
         )}
       </div>
@@ -251,6 +254,7 @@ const RsaComponent = () => {
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            required
           />
         </label>
         <button onClick={handleEncrypt}>Mã hóa</button>
