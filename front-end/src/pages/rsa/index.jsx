@@ -1,16 +1,16 @@
 import { useState } from "react";
 import "./main.css";
 
-// Kiểm tra số nguyên tố
+// Check if a number is prime
 const isPrime = (num) => {
   if (num <= 1) return false;
   for (let i = 2; i <= Math.sqrt(num); i++) {
-    if (num % i === 0) return false;
+    if (num % i === 0) return false;  
   }
   return true;
 };
 
-// Tìm ước chung lớn nhất (gcd)
+// Calculate GCD
 const gcd = (a, b) => {
   while (b !== 0) {
     [a, b] = [b, a % b];
@@ -18,14 +18,12 @@ const gcd = (a, b) => {
   return a;
 };
 
-// Tính nghịch đảo modulo
+// Calculate Modular Inverse using Extended Euclidean Algorithm
 const modInverse = (e, phi) => {
   let m0 = phi, t, q;
   let x0 = 0, x1 = 1;
 
-  if (phi === 1) {
-    return 0;
-  }
+  if (phi === 1) return 0;
 
   while (e > 1) {
     q = Math.floor(e / phi);
@@ -39,38 +37,40 @@ const modInverse = (e, phi) => {
     x1 = t;
   }
 
-  if (x1 < 0) {
-    x1 += m0;
-  }
+  if (x1 < 0) x1 += m0;
 
   return x1;
 };
 
-// Chuyển đổi ký tự thành số
-const charToNumber = (char) => {
-  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  return alphabet.indexOf(char) + 1;
+// Modular exponentiation for accurate large number handling
+const modExp = (base, exp, mod) => {
+  base = BigInt(base);
+  exp = BigInt(exp);
+  mod = BigInt(mod);
+  let result = BigInt(1);
+
+  while (exp > 0) {
+    if (exp % BigInt(2) === BigInt(1)) {
+      result = (result * base) % mod;
+    }
+    base = (base * base) % mod;
+    exp = exp / BigInt(2);
+  }
+
+  return result;
 };
 
-// Chuyển đổi số thành ký tự
-const numberToChar = (num) => {
-  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  return alphabet[num - 1];
-};
-
-// Mã hóa
+// Encryption
 const encrypt = (m, e, n) => {
-  const encrypted = BigInt(m) ** BigInt(e) % BigInt(n);
-  return encrypted.toString();
+  return modExp(BigInt(m), BigInt(e), BigInt(n)).toString();
 };
 
-// Giải mã
+// Decryption
 const decrypt = (c, d, n) => {
-  const decrypted = BigInt(c) ** BigInt(d) % BigInt(n);
-  return decrypted.toString();
+  return modExp(BigInt(c), BigInt(d), BigInt(n)).toString();
 };
 
-// Chọn ngẫu nhiên e sao cho gcd(e, φ(n)) = 1
+// Select a random e such that gcd(e, φ(n)) = 1
 const chooseRandomE = (phi) => {
   let e = 2 + Math.floor(Math.random() * (phi - 2));
   while (gcd(e, phi) !== 1) {
@@ -82,7 +82,7 @@ const chooseRandomE = (phi) => {
 const RsaComponent = () => {
   const [p, setP] = useState("");
   const [q, setQ] = useState("");
-  const [e, setE] = useState(null);
+  const [e, setE] = useState("");
   const [n, setN] = useState(null);
   const [phi, setPhi] = useState(null);
   const [d, setD] = useState(null);
@@ -91,26 +91,45 @@ const RsaComponent = () => {
   const [message, setMessage] = useState("");
   const [cipherText, setCipherText] = useState([]);
   const [decryptedMessage, setDecryptedMessage] = useState("");
+  const [encryptionSteps, setEncryptionSteps] = useState([]);
+  const [decryptionSteps, setDecryptionSteps] = useState([]);
+  const [decryptInput, setDecryptInput] = useState("");
+  const [useRandomE, setUseRandomE] = useState(true); // New state for choosing e
 
-  // Tính toán RSA
+  // Calculate RSA keys
   const calculateRSA = () => {
     const pNum = parseInt(p);
     const qNum = parseInt(q);
 
     if (!isPrime(pNum) || !isPrime(qNum)) {
-      alert("Vui lòng nhập các số nguyên tố hợp lệ cho p và q!");
+      alert("Please enter valid prime numbers for p and q!");
       return;
     }
 
     if (pNum === qNum) {
-      alert("p và q phải là hai số nguyên tố khác nhau!");
+      alert("p and q must be distinct prime numbers!");
       return;
     }
 
     const nVal = pNum * qNum;
-    const phiVal = (pNum - 1) * (qNum - 1);
+    if (nVal < 128) {
+      alert("n is too small for ASCII encryption; please use larger primes.");
+      return;
+    }
 
-    const eVal = chooseRandomE(phiVal);
+    const phiVal = (pNum - 1) * (qNum - 1);
+    let eVal;
+
+    // Decide if e should be randomly chosen or user-provided
+    if (useRandomE) {
+      eVal = chooseRandomE(phiVal);
+    } else {
+      eVal = parseInt(e);
+      if (isNaN(eVal) || gcd(eVal, phiVal) !== 1) {
+        alert("Please enter a valid e that is coprime with φ(n).");
+        return;
+      }
+    }
 
     const dVal = modInverse(eVal, phiVal);
 
@@ -122,35 +141,48 @@ const RsaComponent = () => {
     setPrivateKey({ d: dVal, n: nVal });
   };
 
-  // Mã hóa thông điệp
+  // Encrypt the message
   const handleEncrypt = () => {
     if (message && e && n) {
-      const messageNumbers = message.toUpperCase().split("").map((char) => {
-          const number = charToNumber(char);
-          return number !== 0 ? number : 27;
-        });
+      const messageNumbers = message.split("").map((char) => char.charCodeAt(0));
 
-      const encryptedNumbers = messageNumbers.map((m) => encrypt(m, e, n));
+      const encryptedNumbers = [];
+      const steps = [];
+      messageNumbers.forEach((m) => {
+        const encrypted = encrypt(m, e, n);
+        encryptedNumbers.push(encrypted);
+        steps.push(<span>M = {m}<sup>{e}</sup> mod {n} = {encrypted}</span>);
+      });
+
       setCipherText(encryptedNumbers);
+      setEncryptionSteps(steps);
     } else {
-      alert("Vui lòng nhập thông điệp và tính toán RSA trước khi mã hóa.");
+      alert("Please enter a message and calculate RSA before encrypting.");
     }
   };
 
-  // Giải mã thông điệp
+  // Decrypt the message based on input
   const handleDecrypt = () => {
-    if (cipherText.length > 0 && d && n) {
-      const decryptedNumbers = cipherText.map((c) => decrypt(c, d, n));
+    if (decryptInput && d && n) {
+      const encryptedValues = decryptInput.replace(/\[|\]/g, "").split(",").map(Number);
+      const decryptedNumbers = [];
+      const steps = [];
+
+      encryptedValues.forEach((c) => {
+        const decrypted = decrypt(c, d, n);
+        decryptedNumbers.push(decrypted);
+        steps.push(<span>M = {c}<sup>{d}</sup> mod {n} = {decrypted}</span>);
+      });
 
       const decryptedChars = decryptedNumbers.map((m) => {
-        const decryptedInt = parseInt(m);
-        return decryptedInt >= 1 && decryptedInt <= 26
-          ? numberToChar(decryptedInt)
-          : " ";
+        const num = parseInt(m);
+        return num >= 32 && num <= 126 ? String.fromCharCode(num) : '?';
       });
+
       setDecryptedMessage(decryptedChars.join(""));
+      setDecryptionSteps(steps);
     } else {
-      alert("Vui lòng mã hóa thông điệp trước khi giải mã.");
+      alert("Please enter valid encrypted values to decrypt.");
     }
   };
 
@@ -158,7 +190,7 @@ const RsaComponent = () => {
     <div style={{ padding: "20px" }}>
       <div>
         <label>
-          Nhập số nguyên tố p:
+          Nhập p:
           <input
             type="number"
             value={p}
@@ -169,7 +201,7 @@ const RsaComponent = () => {
 
       <div>
         <label>
-          Nhập số nguyên tố q:
+          Nhập q:
           <input
             type="number"
             value={q}
@@ -178,20 +210,36 @@ const RsaComponent = () => {
         </label>
       </div>
 
+      <div>
+        <label>
+          Chọn e:
+          <input
+            type="checkbox"
+            checked={useRandomE}
+            onChange={() => setUseRandomE(!useRandomE)}
+          />{" "}
+          Chọn ngẫu nhiên
+        </label>
+        {!useRandomE && (
+          <input
+            type="number"
+            value={e}
+            onChange={(e) => setE(e.target.value)}
+            placeholder="Enter value for e"
+          />
+        )}
+      </div>
+
       <button onClick={calculateRSA}>Tính toán RSA</button>
       {n && (
         <div>
           <h2>Kết quả</h2>
           <p>n = p * q = {n}</p>
           <p>{`φ(${n}) = (p - 1) * (q - 1) = ${phi}`}</p>
-          <p>{`Giá trị e được chọn ngẫu nhiên: e = ${e}`}</p>
-          <p>{`Tính d = e⁻¹ mod φ(${n}): d = ${d}`}</p>
-          <p>
-            Khóa công khai: {"(e, n)"} = {`(${publicKey.e}, ${publicKey.n})`}
-          </p>
-          <p>
-            Khóa bí mật: {"(d, n)"} = {`(${privateKey.d}, ${privateKey.n})`}
-          </p>
+          <p>{`Chọn e: ${e}`}</p>
+          <p>{`d = e⁻¹ mod φ(${n}): d = ${d}`}</p>
+          <p>Khóa công khai: (e, n) = ({publicKey.e}, {publicKey.n})</p>
+          <p>Khóa riêng tư: (d, n) = ({privateKey.d}, {privateKey.n})</p>
         </div>
       )}
 
@@ -207,19 +255,39 @@ const RsaComponent = () => {
         </label>
         <button onClick={handleEncrypt}>Mã hóa</button>
         {cipherText.length > 0 && (
-          <p>
-            <strong>Kết quả mã hóa:</strong> [{cipherText.join(", ")}]
-          </p>
+          <div>
+            <p><strong>Kết quả mã hóa:</strong> [{cipherText.join(", ")}]</p>
+            <h3>Các bước thực hiện:</h3>
+            <ul>
+              {encryptionSteps.map((step, index) => (
+                <li key={index}>{step}</li>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
 
       <div>
         <h2>Giải mã thông điệp</h2>
+        <label>
+          Nhập giá trị cần giải mã (Ngăn cách bởi dấu phẩy):
+          <input
+            type="text"
+            value={decryptInput}
+            onChange={(e) => setDecryptInput(e.target.value)}
+          />
+        </label>
         <button onClick={handleDecrypt}>Giải mã</button>
         {decryptedMessage && (
-          <p>
-            <strong>Kết quả giải mã:</strong> {decryptedMessage}
-          </p>
+          <div>
+            <p><strong>Kết quả giải mã:</strong> {decryptedMessage}</p>
+            <h3>Các bước thực hiện:</h3>
+            <ul>
+              {decryptionSteps.map((step, index) => (
+                <li key={index}>{step}</li>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
     </div>

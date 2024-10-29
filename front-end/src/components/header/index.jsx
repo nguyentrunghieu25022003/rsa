@@ -4,7 +4,7 @@ import "./main.css";
 const Header = () => {
   return (
     <header className="app-header">
-      <h1>RSA Encryption Tool</h1>
+      <h1>RSA & Jamstack</h1>
       <nav>
         <ul>
           <li><Link to="/">Thủ công</Link></li>

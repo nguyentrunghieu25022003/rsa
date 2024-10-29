@@ -116,3 +116,8 @@ body {
   input {
     width: calc(100% - 20px) !important;
   }
+
+  ul {
+    list-style: none;
+    padding-left: 0;
+  }
