@@ -102,18 +102,18 @@ const RsaComponent = () => {
     const qNum = parseInt(q);
 
     if (!isPrime(pNum) || !isPrime(qNum)) {
-      alert("Please enter valid prime numbers for p and q!");
+      alert("Vui lòng nhập giá trị hợp lệ, giá trị đó phải là số nguyên tố!");
       return;
     }
 
     if (pNum === qNum) {
-      alert("p and q must be distinct prime numbers!");
+      alert("p và q phải khác nhau !");
       return;
     }
 
     const nVal = pNum * qNum;
     if (nVal < 128) {
-      alert("n is too small for ASCII encryption; please use larger primes.");
+      alert("Giá trị n quá nhỏ để mã hóa ASCII; vui lòng sử dụng số lớn hơn.");
       return;
     }
 
@@ -126,7 +126,7 @@ const RsaComponent = () => {
     } else {
       eVal = parseInt(e);
       if (isNaN(eVal) || gcd(eVal, phiVal) !== 1) {
-        alert("Please enter a valid e that is coprime with φ(n).");
+        alert("Giá trị e vừa nhập không phải là số nguyên tố cùng nhau với φ(n).");
         return;
       }
     }
@@ -157,7 +157,7 @@ const RsaComponent = () => {
       setCipherText(encryptedNumbers);
       setEncryptionSteps(steps);
     } else {
-      alert("Please enter a message and calculate RSA before encrypting.");
+      alert("Lỗi, vui lòng kiểm tra lại");
     }
   };
 
@@ -182,7 +182,7 @@ const RsaComponent = () => {
       setDecryptedMessage(decryptedChars.join(""));
       setDecryptionSteps(steps);
     } else {
-      alert("Please enter valid encrypted values to decrypt.");
+      alert("Vui lòng nhập giá trị hợp lệ");
     }
   };
 
