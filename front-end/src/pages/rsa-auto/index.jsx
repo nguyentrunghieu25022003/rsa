@@ -64,18 +64,18 @@ const AutoRSAComponent = () => {
             <option value={4096}>4096</option>
         </select>
       </div>
-      <button onClick={generateKeys}>Tạo khóa tự động</button>
+      <button className="bg-primary" onClick={generateKeys}>Tạo khóa tự động</button>
 
       {autoPublicKey && autoPrivateKey && (
         <div>
-          <h3>Khóa công khai (tự động):</h3>
+          <h3 className="mt-3">Khóa công khai (tự động):</h3>
           <textarea
             value={forge.pki.publicKeyToPem(autoPublicKey)}
             readOnly
             rows={6}
             cols={50}
           />
-          <h3>Khóa bí mật (tự động):</h3>
+          <h3 className="mt-3">Khóa bí mật (tự động):</h3>
           <textarea
             value={forge.pki.privateKeyToPem(autoPrivateKey)}
             readOnly
@@ -95,17 +95,19 @@ const AutoRSAComponent = () => {
             onChange={(e) => setMessage(e.target.value)}
           />
         </label>
-        <button onClick={handleAutoEncrypt}>Mã hóa</button>
+        <button className="bg-primary" onClick={handleAutoEncrypt}>Mã hóa</button>
         {cipherText && (
-          <p>
-            <strong>Kết quả mã hóa:</strong> {cipherText}
-          </p>
+          <div className="card mt-3" style={{ padding: "0 20px" }}>
+            <p>
+              <strong>Kết quả mã hóa:</strong> {cipherText}
+            </p>
+          </div>
         )}
       </div>
 
       <div>
         <h2>Giải mã với khóa tự động</h2>
-        <button onClick={handleAutoDecrypt}>Giải mã</button>
+        <button className="bg-primary" onClick={handleAutoDecrypt}>Giải mã</button>
         {decryptedMessage && (
           <p>
             <strong>Kết quả giải mã:</strong> {decryptedMessage}

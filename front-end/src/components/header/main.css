@@ -17,6 +17,7 @@
     font-weight: bold;
     letter-spacing: 2px;
     text-transform: uppercase;
+    color: #ffffff;
   }
   
   .app-header nav ul {
@@ -40,11 +41,9 @@
   }
   
   .app-header nav ul li a:hover {
-    background-color: #4CAF50;
-    color: white;
+    text-decoration: underline;
   }
   
-  /* Hiệu ứng nút bấm với transition */
   .app-header nav ul li a:active {
     transform: translateY(2px);
     background-color: #388E3C;

@@ -3,13 +3,13 @@ import "./main.css";
 
 const Header = () => {
   return (
-    <header className="app-header">
+    <header className="app-header bg-primary">
       <h1>RSA & Jamstack</h1>
       <nav>
         <ul>
-          <li><Link to="/">Thủ công</Link></li>
-          <li><Link to="/rsa-auto">Tự động</Link></li>
-          <li><Link to="/histories">Lịch sử tạo khóa</Link></li>
+          <li><Link to="/">Tạo khóa thủ công</Link></li>
+          <li><Link to="/rsa-auto">Tạo khóa tự động</Link></li>
+          <li><Link to="/histories">Lịch sử tạo khóa (Tự động)</Link></li>
         </ul>
       </nav>
     </header>

@@ -21,15 +21,6 @@ body {
     color: #333;
   }
   
-  .container {
-    max-width: 600px;
-    margin: 40px auto;
-    background-color: #fff;
-    padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-  }
-  
   label {
     font-size: 16px;
     font-weight: bold;
@@ -48,7 +39,6 @@ body {
   }
   
   button {
-    background-color: #333;
     color: white;
     border: none;
     padding: 12px 20px;
@@ -60,7 +50,7 @@ body {
   }
   
   button:hover {
-    background-color: #45a049;
+    color: #f3f3f3;
   }
   
   p {
@@ -98,7 +88,6 @@ body {
   input[type="number"]:focus,
   textarea:focus {
     outline: none;
-    border-color: #4CAF50;
   }
   
   @media (max-width: 600px) {
@@ -111,10 +100,6 @@ body {
       font-size: 14px;
       padding: 10px;
     }
-  }
-
-  input {
-    width: calc(100% - 20px) !important;
   }
 
   ul {

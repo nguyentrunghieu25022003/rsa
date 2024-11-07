@@ -22,8 +22,9 @@ const gcd = (a, b) => {
 const modInverse = (e, phi) => {
   let m0 = phi, t, q;
   let x0 = 0, x1 = 1;
+  const steps = [];
 
-  if (phi === 1) return 0;
+  if (phi === 1) return { inverse: 0, steps };
 
   while (e > 1) {
     q = Math.floor(e / phi);
@@ -35,11 +36,13 @@ const modInverse = (e, phi) => {
 
     x0 = x1 - q * x0;
     x1 = t;
+
+    steps.push(`q = ${q}, φ = ${phi}, e = ${e}, x0 = ${x0}, x1 = ${x1}`);
   }
 
   if (x1 < 0) x1 += m0;
 
-  return x1;
+  return { inverse: x1, steps };
 };
 
 // Modular exponentiation for accurate large number handling
@@ -95,6 +98,7 @@ const RsaComponent = () => {
   const [decryptionSteps, setDecryptionSteps] = useState([]);
   const [decryptInput, setDecryptInput] = useState("");
   const [useRandomE, setUseRandomE] = useState(true); // New state for choosing e
+  const [modInverseSteps, setModInverseSteps] = useState([]);
 
   // Calculate RSA keys
   const calculateRSA = () => {
@@ -131,7 +135,7 @@ const RsaComponent = () => {
       }
     }
 
-    const dVal = modInverse(eVal, phiVal);
+    const { inverse: dVal, steps } = modInverse(eVal, phiVal);
 
     setN(nVal);
     setPhi(phiVal);
@@ -139,6 +143,7 @@ const RsaComponent = () => {
     setD(dVal);
     setPublicKey({ e: eVal, n: nVal });
     setPrivateKey({ d: dVal, n: nVal });
+    setModInverseSteps(steps);
   };
 
   // Encrypt the message
@@ -151,7 +156,7 @@ const RsaComponent = () => {
       messageNumbers.forEach((m) => {
         const encrypted = encrypt(m, e, n);
         encryptedNumbers.push(encrypted);
-        steps.push(<span>M = {m}<sup>{e}</sup> mod {n} = {encrypted}</span>);
+        steps.push(<span>C = {m}<sup>{e}</sup> mod {n} = {encrypted}</span>);
       });
 
       setCipherText(encryptedNumbers);
@@ -213,34 +218,39 @@ const RsaComponent = () => {
       </div>
 
       <div>
-        <label>
-          Chọn e:
+        <label className="d-flex align-items-center gap-3">
+          Chọn e tự động
           <input
             type="checkbox"
             checked={useRandomE}
             onChange={() => setUseRandomE(!useRandomE)}
-          />{" "}
-          Chọn ngẫu nhiên
+          />
         </label>
         {!useRandomE && (
           <input
             type="number"
             value={e}
             onChange={(e) => setE(e.target.value)}
-            placeholder="Enter value for e"
+            placeholder="Nhập vào giá trị e..."
             required
           />
         )}
       </div>
 
-      <button onClick={calculateRSA}>Tính toán RSA</button>
+      <button className="bg-primary" onClick={calculateRSA}>Tính toán RSA</button>
       {n && (
-        <div>
-          <h2>Kết quả</h2>
+        <div className="card pt-3 pb-4 mt-4" style={{ paddingLeft: "30px" }}>
+          <strong>Kết quả</strong>
           <p>n = p * q = {n}</p>
           <p>{`φ(${n}) = (p - 1) * (q - 1) = ${phi}`}</p>
-          <p>{`Chọn e: ${e}`}</p>
+          <p>{`e = ${e}`}</p>
           <p>{`d = e⁻¹ mod φ(${n}): d = ${d}`}</p>
+          <strong>Các bước tính toán d theo thuật toán Euclid</strong>
+          <div>
+            {modInverseSteps.map((step, index) => (
+              <p key={index}>{step}</p>
+            ))}
+          </div>
           <p>Khóa công khai: (e, n) = ({publicKey.e}, {publicKey.n})</p>
           <p>Khóa riêng tư: (d, n) = ({privateKey.d}, {privateKey.n})</p>
         </div>
@@ -257,16 +267,17 @@ const RsaComponent = () => {
             required
           />
         </label>
-        <button onClick={handleEncrypt}>Mã hóa</button>
+        <button className="bg-primary" onClick={handleEncrypt}>Mã hóa</button>
         {cipherText.length > 0 && (
           <div>
             <p><strong>Kết quả mã hóa:</strong> [{cipherText.join(", ")}]</p>
-            <h3>Các bước thực hiện:</h3>
-            <ul>
+            <strong>Các bước thực hiện:</strong>
+            <div>
+              <p><span>C = m<sup>e</sup> mod n</span></p>
               {encryptionSteps.map((step, index) => (
-                <li key={index}>{step}</li>
+                <p key={index}>{step}</p>
               ))}
-            </ul>
+            </div>
           </div>
         )}
       </div>
@@ -281,16 +292,17 @@ const RsaComponent = () => {
             onChange={(e) => setDecryptInput(e.target.value)}
           />
         </label>
-        <button onClick={handleDecrypt}>Giải mã</button>
+        <button className="bg-primary" onClick={handleDecrypt}>Giải mã</button>
         {decryptedMessage && (
           <div>
             <p><strong>Kết quả giải mã:</strong> {decryptedMessage}</p>
-            <h3>Các bước thực hiện:</h3>
-            <ul>
+            <strong>Các bước thực hiện:</strong>
+            <div>
+              <p><span>M = C<sup>d</sup> mod n</span></p>
               {decryptionSteps.map((step, index) => (
-                <li key={index}>{step}</li>
+                <p key={index}>{step}</p>
               ))}
-            </ul>
+            </div>
           </div>
         )}
       </div>

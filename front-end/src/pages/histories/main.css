@@ -2,9 +2,6 @@
     width: 80%;
     margin: 0 auto;
     padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
 
   .histories-container h2 {
@@ -12,6 +9,7 @@
     color: #333;
     font-size: 24px;
     margin-bottom: 20px;
+    font-weight: bold;
   }
 
   .key-item {
@@ -37,6 +35,15 @@
     margin: 5px 0;
     font-size: 16px;
   }
+
+  .key-details p {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    width: 100%;
+    max-width: 100%;
+  }
+  
 
   .key-details p strong {
     color: #0056b3;
