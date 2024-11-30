@@ -52,7 +52,7 @@ const AutoRSAComponent = () => {
         }
         const decodedCipher = forge.util.decode64(decryptInput);
         const decrypted = autoPrivateKey.decrypt(decodedCipher, "RSA-OAEP");
-        setDecryptedMessage(decrypted);  // Show the decrypted message
+        setDecryptedMessage(decrypted); 
       } catch (error) {
         alert("Error during decryption: " + error.message);
       }
