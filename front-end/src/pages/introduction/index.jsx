@@ -79,10 +79,15 @@ const Introduction = () => {
           <Link to="/automatic" class="btn btn-primary mx-2">
             Automatic Key Generation
           </Link>
-          <Link to="/history" class="btn btn-primary mx-2">
-            Key Generation History
-          </Link>
         </div>
+      </section>
+      <section>
+        <p className="mt-5 mb-2 d-flex justify-content-center gap-2">
+          Github: 
+          <a href="https://github.com/nguyentrunghieu25022003/rsa" target="_blank">
+            https://github.com/nguyentrunghieu25022003/rsa
+          </a>
+        </p>
       </section>
     </div>
   );
