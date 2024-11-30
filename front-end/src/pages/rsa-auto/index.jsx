@@ -10,72 +10,83 @@ const AutoRSAComponent = () => {
   const [message, setMessage] = useState("");
   const [cipherText, setCipherText] = useState("");
   const [decryptedMessage, setDecryptedMessage] = useState("");
+  const [decryptInput, setDecryptInput] = useState("");
 
-  // Hàm sinh cặp khóa RSA dựa trên kích thước khóa
   const generateKeys = () => {
     const rsa = forge.pki.rsa;
     rsa.generateKeyPair({ bits: keySize, workers: -1 }, async (err, keypair) => {
       if (err) {
-        alert("Có lỗi khi tạo khóa!");
+        alert("There was an error generating the keys!");
         return;
       }
       setAutoPublicKey(keypair.publicKey);
       setAutoPrivateKey(keypair.privateKey);
-      const publicKeyPem = forge.pki.publicKeyToPem(keypair.publicKey); // Chuyển khóa công khai thành chuỗi PEM
+      const publicKeyPem = forge.pki.publicKeyToPem(keypair.publicKey);
       const privateKeyPem = forge.pki.privateKeyToPem(keypair.privateKey);
       await handleSaveKey(publicKeyPem, privateKeyPem);
-      setCipherText(""); // Reset kết quả mã hóa
-      setDecryptedMessage(""); // Reset kết quả giải mã
+      setCipherText("");
+      setDecryptedMessage("");
     });
   };
 
-  // Hàm mã hóa với khóa tự động
   const handleAutoEncrypt = () => {
     if (message && autoPublicKey) {
-      const encrypted = autoPublicKey.encrypt(message, "RSA-OAEP");
-      setCipherText(forge.util.encode64(encrypted));
+      try {
+        const encrypted = autoPublicKey.encrypt(message, "RSA-OAEP");
+        setCipherText(forge.util.encode64(encrypted));
+      } catch (error) {
+        alert("Error during encryption: " + error.message);
+      }
     } else {
-      alert("Vui lòng nhập thông điệp và tạo khóa tự động trước khi mã hóa.");
+      alert("Please enter a message and generate the keys before encrypting.");
     }
   };
 
-  // Hàm giải mã với khóa tự động
   const handleAutoDecrypt = () => {
-    if (cipherText && autoPrivateKey) {
-      const decodedCipher = forge.util.decode64(cipherText);
-      const decrypted = autoPrivateKey.decrypt(decodedCipher, "RSA-OAEP");
-      setDecryptedMessage(decrypted);
+    if (decryptInput && autoPrivateKey) {
+      try {
+        const isBase64 = /^[A-Za-z0-9+/=]+$/.test(decryptInput);
+        if (!isBase64) {
+          alert("Please enter a valid base64 encoded ciphertext.");
+          return;
+        }
+        const decodedCipher = forge.util.decode64(decryptInput);
+        const decrypted = autoPrivateKey.decrypt(decodedCipher, "RSA-OAEP");
+        setDecryptedMessage(decrypted);  // Show the decrypted message
+      } catch (error) {
+        alert("Error during decryption: " + error.message);
+      }
     } else {
-      alert("Vui lòng mã hóa thông điệp trước khi giải mã.");
+      alert("Please enter an encrypted message to decrypt.");
     }
   };
 
   return (
     <div style={{ padding: "20px" }}>
-      <div className="select-container">
-        <label>Chọn kích thước khóa (bit):</label>
+      <div className="select-container d-flex align-items-center">
+        <label className="fs-5 fw-normal">Select Key Size (bits):</label>
         <select
-            value={keySize}
-            onChange={(e) => setKeySize(parseInt(e.target.value))}
+          className="mb-2"
+          value={keySize}
+          onChange={(e) => setKeySize(parseInt(e.target.value))}
         >
-            <option value={1024}>1024</option>
-            <option value={2048}>2048</option>
-            <option value={3072}>3072</option>
-            <option value={4096}>4096</option>
+          <option value={1024}>1024</option>
+          <option value={2048}>2048</option>
+          <option value={3072}>3072</option>
+          <option value={4096}>4096</option>
         </select>
       </div>
-      <button className="bg-primary" onClick={generateKeys}>Tạo khóa tự động</button>
-
+      <button className="bg-primary mt-5 mb-3" onClick={generateKeys}>Generate Keys Automatically</button>
       {autoPublicKey && autoPrivateKey && (
         <div>
-          <h3 className="mt-3">Khóa công khai (tự động):</h3>
+          <h3 className="mt-3">Public Key (Automatically Generated):</h3>
           <textarea
             value={forge.pki.publicKeyToPem(autoPublicKey)}
             readOnly
             rows={6}
             cols={50}
           />
-          <h3 className="mt-3">Khóa bí mật (tự động):</h3>
+          <h3 className="mt-3">Private Key (Automatically Generated):</h3>
           <textarea
             value={forge.pki.privateKeyToPem(autoPrivateKey)}
             readOnly
@@ -84,34 +95,38 @@ const AutoRSAComponent = () => {
           />
         </div>
       )}
-
       <div>
-        <h2>Mã hóa với khóa tự động</h2>
-        <label>
-          Nhập thông điệp:
+        <h2 className="fs-3 fw-medium text-center mt-5 mb-3">Encrypt with Automatically Generated Keys</h2>
+        <label className="fs-5 fw-normal">
+          Enter Message:
           <input
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
           />
         </label>
-        <button className="bg-primary" onClick={handleAutoEncrypt}>Mã hóa</button>
+        <button className="bg-primary mt-5" onClick={handleAutoEncrypt}>Encrypt</button>
         {cipherText && (
           <div className="card mt-3" style={{ padding: "0 20px" }}>
-            <p>
-              <strong>Kết quả mã hóa:</strong> {cipherText}
-            </p>
+            <p className="pt-5 pb-5">{cipherText}</p>
           </div>
         )}
       </div>
-
       <div>
-        <h2>Giải mã với khóa tự động</h2>
-        <button className="bg-primary" onClick={handleAutoDecrypt}>Giải mã</button>
+        <h2 className="fs-3 fw-medium text-center mt-5 mb-3">Decrypt with Automatically Generated Keys</h2>
+        <label className="fs-5 fw-normal">
+          Enter Ciphertext (Base64):
+          <input
+            type="text"
+            value={decryptInput}
+            onChange={(e) => setDecryptInput(e.target.value)}
+          />
+        </label>
+        <button className="bg-primary mt-5" onClick={handleAutoDecrypt}>Decrypt</button>
         {decryptedMessage && (
-          <p>
-            <strong>Kết quả giải mã:</strong> {decryptedMessage}
-          </p>
+          <div className="card mt-3" style={{ padding: "0 20px" }}>
+            <p className="pt-5 pb-5">{decryptedMessage}</p>
+          </div>
         )}
       </div>
     </div>

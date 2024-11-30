@@ -4,12 +4,14 @@ import "./main.css";
 const Header = () => {
   return (
     <header className="app-header bg-primary">
-      <h1>RSA & Jamstack</h1>
+      <Link to="/">
+        <h1>RSA & Jamstack</h1>
+      </Link>
       <nav>
         <ul>
-          <li><Link to="/">Tạo khóa thủ công</Link></li>
-          <li><Link to="/rsa-auto">Tạo khóa tự động</Link></li>
-          <li><Link to="/histories">Lịch sử tạo khóa (Tự động)</Link></li>
+          <li><Link to="/manual">Manual Key Generation</Link></li>
+          <li><Link to="/automatic">Automatic Key Generation</Link></li>
+          <li><Link to="/history">Key Generation History (Automatic)</Link></li>
         </ul>
       </nav>
     </header>

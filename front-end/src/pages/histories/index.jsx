@@ -28,7 +28,7 @@ const Histories = () => {
 
   if (loading) {
     return (
-      <div className="d-flex justify-content-center mt-5">
+      <div className="d-flex justify-content-center" style={{ marginTop: "100px" }}>
         <p className="fs-4">Loading...</p>
       </div>
     );
@@ -36,16 +36,16 @@ const Histories = () => {
 
   return (
     <div className="histories-container">
-      <h2>Các khóa tự động đã tạo</h2>
+      <h2 className="fs-3 fw-medium text-center mt-3 mb-5">Automatically generated keys</h2>
       {data.length > 0 ? (
         data.map((item, index) => (
           <div className="key-item" key={index}>
             <div className="key-details">
               <p>
-                <strong>Khóa công khai:</strong> {item.publicKey}
+                <strong>Public Key:</strong> {item.publicKey}
               </p>
               <p>
-                <strong>Khóa riêng tư:</strong> {item.privateKey}
+                <strong>Private Key:</strong> {item.privateKey}
               </p>
             </div>
           </div>
