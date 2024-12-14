@@ -106,3 +106,8 @@ body {
     list-style: none;
     padding-left: 0;
   }
+
+  .step {
+    display: block;
+    margin: 10px 0;
+  }

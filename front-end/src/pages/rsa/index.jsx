@@ -146,7 +146,7 @@ const RsaComponent = () => {
       messageNumbers.forEach((m) => {
         const encrypted = encrypt(m, e, n);
         encryptedNumbers.push(encrypted);
-        steps.push(<span>C = {m}<sup>{e}</sup> mod {n} = {encrypted}</span>);
+        steps.push(<span className="step">C = {m}<sup>{e}</sup> mod {n} = {encrypted}</span>);
       });
 
       setCipherText(encryptedNumbers);
@@ -165,7 +165,7 @@ const RsaComponent = () => {
       encryptedValues.forEach((c) => {
         const decrypted = decrypt(c, d, n);
         decryptedNumbers.push(decrypted);
-        steps.push(<span>M = {c}<sup>{d}</sup> mod {n} = {decrypted}</span>);
+        steps.push(<span className="step">M = {c}<sup>{d}</sup> mod {n} = {decrypted}</span>);
       });
 
       const decryptedChars = decryptedNumbers.map((m) => {
@@ -253,11 +253,11 @@ const RsaComponent = () => {
         </label>
         <button className="bg-primary mt-5" onClick={handleEncrypt}>Encrypt</button>
         {cipherText.length > 0 && (
-          <div>
-            <p><strong>Encrypted Result:</strong> [{cipherText.join(", ")}]</p>
-            <strong>Steps:</strong>
+          <div style={{ margin: "10px 0" }}>
+            <p style={{ margin: "10px 0" }}><strong>Encrypted Result:</strong> [{cipherText.join(", ")}]</p>
+            <strong style={{ margin: "10px 0" }}>Steps:</strong>
             <div>
-              <p><span>C = m<sup>e</sup> mod n</span></p>
+              <p style={{ margin: "10px 0" }}><span>C = m<sup>e</sup> mod n</span></p>
               {encryptionSteps.map((step, index) => (
                 <p key={index}>{step}</p>
               ))}
@@ -277,11 +277,11 @@ const RsaComponent = () => {
         </label>
         <button className="bg-primary mt-5" onClick={handleDecrypt}>Decrypt</button>
         {decryptedMessage && (
-          <div>
-            <p><strong>Decrypted Result:</strong> {decryptedMessage}</p>
+          <div style={{ margin: "10px 0" }}>
+            <p style={{ margin: "10px 0" }}><strong>Decrypted Result:</strong> {decryptedMessage}</p>
             <strong>Steps:</strong>
             <div>
-              <p><span>M = C<sup>d</sup> mod n</span></p>
+              <p style={{ margin: "10px 0" }}><span>M = C<sup>d</sup> mod n</span></p>
               {decryptionSteps.map((step, index) => (
                 <p key={index}>{step}</p>
               ))}
