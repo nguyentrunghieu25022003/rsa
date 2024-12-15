@@ -75,6 +75,15 @@ const chooseRandomE = (phi) => {
   return e;
 };
 
+const hashMessage = (message) => {
+  // Simple hash function for demonstration (e.g., SHA-256 can be used in production)
+  let hash = 0;
+  for (let i = 0; i < message.length; i++) {
+    hash = (hash * 31 + message.charCodeAt(i)) % 1000000007;
+  }
+  return hash;
+};
+
 const RsaComponent = () => {
   const [p, setP] = useState("");
   const [q, setQ] = useState("");
@@ -92,6 +101,8 @@ const RsaComponent = () => {
   const [decryptInput, setDecryptInput] = useState("");
   const [useRandomE, setUseRandomE] = useState(true);
   const [modInverseSteps, setModInverseSteps] = useState([]);
+  const [originalHash, setOriginalHash] = useState(null);
+  const [decryptionHash, setDecryptionHash] = useState(null);
 
   const calculateRSA = () => {
     const pNum = parseInt(p);
@@ -163,6 +174,8 @@ const RsaComponent = () => {
         }
       });
 
+      const messageHash = hashMessage(message);
+      setOriginalHash(messageHash);
       setCipherText(encryptedNumbers);
       setEncryptionSteps(steps);
     } else {
@@ -189,20 +202,33 @@ const RsaComponent = () => {
 
       const decryptedChars = decryptedNumbers.map((m, index) => {
         if (m === " ") return " ";
-        const originalPart = message.match(/\d+|\S|\s/g)[index]; // Get corresponding original part
+        const originalPart = message.match(/\d+|\S|\s/g)[index];
         const num = parseInt(m);
 
         if (!isNaN(num) && num >= 32 && num <= 126 && isNaN(originalPart)) {
-          return String.fromCharCode(num); // Convert valid ASCII codes to characters
+          return String.fromCharCode(num);
         } else if (!isNaN(num) && !isNaN(originalPart)) {
-          return originalPart; // Keep numeric parts as they are
+          return originalPart;
         } else {
-          return "?"; // Handle unexpected cases
+          return "?";
         }
       });
 
-      setDecryptedMessage(decryptedChars.join(""));
+      const decryptedMessage = decryptedChars.join("");
+      setDecryptedMessage(decryptedMessage);
       setDecryptionSteps(steps);
+
+      const newHash = hashMessage(decryptedMessage);
+      setDecryptionHash(newHash);
+
+      console.log("original", originalHash);
+      console.log("new", newHash);
+
+      if (originalHash !== null && originalHash === newHash) {
+        alert("Message integrity verified successfully.");
+      } else {
+        alert("Message integrity verification failed. The message may have been tampered with.");
+      }
     } else {
       alert("Error, please check again");
     }
@@ -307,6 +333,7 @@ const RsaComponent = () => {
         {decryptedMessage && (
           <div style={{ margin: "10px 0" }}>
             <p style={{ margin: "10px 0" }}><strong>Decrypted Result:</strong> {decryptedMessage}</p>
+            <p style={{ margin: "10px 0" }}><strong>Hash Match:</strong> {originalHash === decryptionHash ? "Valid" : "Invalid"}</p>
             <strong>Steps:</strong>
             <div>
               <p style={{ margin: "10px 0" }}><span>M = C<sup>d</sup> mod n</span></p>
