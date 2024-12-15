@@ -75,15 +75,6 @@ const chooseRandomE = (phi) => {
   return e;
 };
 
-const hashMessage = (message) => {
-  // Simple hash function for demonstration (e.g., SHA-256 can be used in production)
-  let hash = 0;
-  for (let i = 0; i < message.length; i++) {
-    hash = (hash * 31 + message.charCodeAt(i)) % 1000000007;
-  }
-  return hash;
-};
-
 const RsaComponent = () => {
   const [p, setP] = useState("");
   const [q, setQ] = useState("");
@@ -101,9 +92,7 @@ const RsaComponent = () => {
   const [decryptInput, setDecryptInput] = useState("");
   const [useRandomE, setUseRandomE] = useState(true);
   const [modInverseSteps, setModInverseSteps] = useState([]);
-  const [originalHash, setOriginalHash] = useState(null);
-  const [decryptionHash, setDecryptionHash] = useState(null);
-
+  
   const calculateRSA = () => {
     const pNum = parseInt(p);
     const qNum = parseInt(q);
@@ -174,8 +163,6 @@ const RsaComponent = () => {
         }
       });
 
-      const messageHash = hashMessage(message);
-      setOriginalHash(messageHash);
       setCipherText(encryptedNumbers);
       setEncryptionSteps(steps);
     } else {
@@ -217,18 +204,6 @@ const RsaComponent = () => {
       const decryptedMessage = decryptedChars.join("");
       setDecryptedMessage(decryptedMessage);
       setDecryptionSteps(steps);
-
-      const newHash = hashMessage(decryptedMessage);
-      setDecryptionHash(newHash);
-
-      console.log("original", originalHash);
-      console.log("new", newHash);
-
-      if (originalHash !== null && originalHash === newHash) {
-        alert("Message integrity verified successfully.");
-      } else {
-        alert("Message integrity verification failed. The message may have been tampered with.");
-      }
     } else {
       alert("Error, please check again");
     }
