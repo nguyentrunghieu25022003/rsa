@@ -17,8 +17,11 @@ const gcd = (a, b) => {
 };
 
 const modInverse = (e, phi) => {
-  let m0 = phi, t, q;
-  let x0 = 0, x1 = 1;
+  let m0 = phi,
+    t,
+    q;
+  let x0 = 0,
+    x1 = 1;
   const steps = [];
 
   if (phi === 1) return { inverse: 0, steps };
@@ -103,6 +106,11 @@ const RsaComponent = () => {
       return;
     }
 
+    if(p < 50 || q < 50) {
+      alert("p and q must be greater than 50!");
+      return;
+    }
+
     if (pNum === qNum) {
       alert("p and q must be different!");
       return;
@@ -154,6 +162,7 @@ const RsaComponent = () => {
       const updatedEncs = [];
       const encryptedNumbers = [];
       const steps = [];
+      let cnt = 0;
 
       messageNumbers.forEach((m) => {
         if (m === " ") {
@@ -165,10 +174,11 @@ const RsaComponent = () => {
           updatedEncs.push(encrypted);
           console.log("Encrypted", encrypted)
           console.log("m", m);
-          while (parseInt(encrypted) === m) {
+          while (parseInt(encrypted) === m && cnt < 5) {
             updatedE = chooseRandomE(phi);
             encrypted = encrypt(m, updatedE, n);
             alert(`e has been updated to avoid C = m. New e = ${updatedE}`);
+            cnt++;
           }
           encryptedNumbers.push(encrypted);
           steps.push(<span className="step">C = {m}<sup>{e}</sup> mod {n} = {encrypted}</span>);
@@ -233,7 +243,7 @@ const RsaComponent = () => {
       alert("Error, please check your input or RSA parameters.");
     }
   };
-  
+
   return (
     <div style={{ padding: "20px" }}>
       <div className="mb-4">
@@ -277,25 +287,37 @@ const RsaComponent = () => {
           />
         )}
       </div>
-      <button className="bg-primary fs-5 mt-3" onClick={calculateRSA}>Calculate RSA</button>
+      <button className="bg-primary fs-5 mt-3" onClick={calculateRSA}>
+        Calculate RSA
+      </button>
       {n && (
         <div className="card pt-3 pb-4 mt-4" style={{ paddingLeft: "30px" }}>
           <p className="fs-5 mb-3">1. n = p * q = {n}</p>
           <p className="fs-5 mb-3">{`2. φ(${n}) = (p - 1) * (q - 1) = ${phi}`}</p>
           <p className="fs-5 mb-3">{`3. e = ${e}`}</p>
           <p className="fs-5 mb-3">{`4. d = e⁻¹ mod φ(${n}): d = ${d}`}</p>
-          <strong className="fs-5 fw-medium">Steps to calculate d using the Euclidean algorithm</strong>
+          <strong className="fs-5 fw-medium">
+            Steps to calculate d using the Euclidean algorithm
+          </strong>
           <div className="mt-4">
             {modInverseSteps.map((step, index) => (
-              <p className="fs-5 mb-3" key={index}>{step}</p>
+              <p className="fs-5 mb-3" key={index}>
+                {step}
+              </p>
             ))}
           </div>
-          <p className="fs-5 mb-3 fw-medium">Public Key: (e, n) = ({publicKey.e}, {publicKey.n})</p>
-          <p className="fs-5 mb-3 fw-medium">Private Key: (d, n) = ({privateKey.d}, {privateKey.n})</p>
+          <p className="fs-5 mb-3 fw-medium">
+            Public Key: (e, n) = ({publicKey.e}, {publicKey.n})
+          </p>
+          <p className="fs-5 mb-3 fw-medium">
+            Private Key: (d, n) = ({privateKey.d}, {privateKey.n})
+          </p>
         </div>
       )}
       <div>
-        <h2 className="fs-3 fw-medium text-center mt-5 mb-3">Encrypt Message</h2>
+        <h2 className="fs-3 fw-medium text-center mt-5 mb-3">
+          Encrypt Message
+        </h2>
         <label className="fs-5 fw-normal">
           Enter message:
           <input
@@ -305,13 +327,21 @@ const RsaComponent = () => {
             required
           />
         </label>
-        <button className="bg-primary mt-5" onClick={handleEncrypt}>Encrypt</button>
+        <button className="bg-primary mt-5" onClick={handleEncrypt}>
+          Encrypt
+        </button>
         {cipherText.length > 0 && (
           <div style={{ margin: "10px 0" }}>
-            <p style={{ margin: "10px 0" }}><strong>Encrypted Result:</strong> [{cipherText.join(", ")}]</p>
+            <p style={{ margin: "10px 0" }}>
+              <strong>Encrypted Result:</strong> [{cipherText.join(", ")}]
+            </p>
             <strong style={{ margin: "10px 0" }}>Steps:</strong>
             <div>
-              <p style={{ margin: "10px 0" }}><span>C = m<sup>e</sup> mod n</span></p>
+              <p style={{ margin: "10px 0" }}>
+                <span>
+                  C = m<sup>e</sup> mod n
+                </span>
+              </p>
               {encryptionSteps.map((step, index) => (
                 <p key={index}>{step}</p>
               ))}
@@ -320,7 +350,9 @@ const RsaComponent = () => {
         )}
       </div>
       <div>
-        <h2 className="fs-3 fw-medium text-center mt-5 mb-3">Decrypt Message</h2>
+        <h2 className="fs-3 fw-medium text-center mt-5 mb-3">
+          Decrypt Message
+        </h2>
         <label className="fs-5 fw-normal">
           Enter values to decrypt (comma separated):
           <input
@@ -329,13 +361,21 @@ const RsaComponent = () => {
             onChange={(e) => setDecryptInput(e.target.value)}
           />
         </label>
-        <button className="bg-primary mt-5" onClick={handleDecrypt}>Decrypt</button>
+        <button className="bg-primary mt-5" onClick={handleDecrypt}>
+          Decrypt
+        </button>
         {decryptedMessage && (
           <div style={{ margin: "10px 0" }}>
-            <p style={{ margin: "10px 0" }}><strong>Decrypted Result:</strong> {decryptedMessage}</p>
+            <p style={{ margin: "10px 0" }}>
+              <strong>Decrypted Result:</strong> {decryptedMessage}
+            </p>
             <strong>Steps:</strong>
             <div>
-              <p style={{ margin: "10px 0" }}><span>M = C<sup>d</sup> mod n</span></p>
+              <p style={{ margin: "10px 0" }}>
+                <span>
+                  M = C<sup>d</sup> mod n
+                </span>
+              </p>
               {decryptionSteps.map((step, index) => (
                 <p key={index}>{step}</p>
               ))}
