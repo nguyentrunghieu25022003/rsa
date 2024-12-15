@@ -150,6 +150,7 @@ const RsaComponent = () => {
         return;
       }
 
+      let updatedE = e;
       const updatedEncs = [];
       const encryptedNumbers = [];
       const steps = [];
@@ -160,8 +161,13 @@ const RsaComponent = () => {
           updatedEncs.push("");
           steps.push(<span className="step">Space remains unchanged</span>);
         } else {
-          const encrypted = encrypt(m, e, n);
+          let encrypted = encrypt(m, updatedE, n);
           updatedEncs.push(encrypted);
+          while (parseInt(encrypted) === m) {
+            updatedE = chooseRandomE(phi);
+            encrypted = encrypt(m, updatedE, n);
+            alert(`e has been updated to avoid C = m. New e = ${updatedE}`);
+          }
           encryptedNumbers.push(encrypted);
           steps.push(<span className="step">C = {m}<sup>{e}</sup> mod {n} = {encrypted}</span>);
         }
@@ -170,6 +176,7 @@ const RsaComponent = () => {
       setCipherText(encryptedNumbers);
       setEncryptionSteps(steps);
       setEncs(updatedEncs);
+      setE(updatedE);
     } else {
       alert("Error, please check again");
     }
