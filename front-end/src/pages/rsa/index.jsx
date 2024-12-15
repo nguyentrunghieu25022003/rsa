@@ -166,7 +166,7 @@ const RsaComponent = () => {
           while (parseInt(encrypted) === m) {
             updatedE = chooseRandomE(phi);
             encrypted = encrypt(m, updatedE, n);
-            alert(`e has been updated to avoid C = m. New e = ${updatedE}`);
+            alert(`e has been updated to avoid C = m. New e = ${updatedE}. Please re-encode with new e-number.`);
           }
           encryptedNumbers.push(encrypted);
           steps.push(<span className="step">C = {m}<sup>{e}</sup> mod {n} = {encrypted}</span>);
