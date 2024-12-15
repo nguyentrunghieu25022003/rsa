@@ -92,7 +92,7 @@ const RsaComponent = () => {
   const [decryptInput, setDecryptInput] = useState("");
   const [useRandomE, setUseRandomE] = useState(true);
   const [modInverseSteps, setModInverseSteps] = useState([]);
-  
+
   const calculateRSA = () => {
     const pNum = parseInt(p);
     const qNum = parseInt(q);
@@ -308,7 +308,6 @@ const RsaComponent = () => {
         {decryptedMessage && (
           <div style={{ margin: "10px 0" }}>
             <p style={{ margin: "10px 0" }}><strong>Decrypted Result:</strong> {decryptedMessage}</p>
-            <p style={{ margin: "10px 0" }}><strong>Hash Match:</strong> {originalHash === decryptionHash ? "Valid" : "Invalid"}</p>
             <strong>Steps:</strong>
             <div>
               <p style={{ margin: "10px 0" }}><span>M = C<sup>d</sup> mod n</span></p>
