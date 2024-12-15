@@ -4,7 +4,7 @@ import "./main.css";
 const isPrime = (num) => {
   if (num <= 1) return false;
   for (let i = 2; i <= Math.sqrt(num); i++) {
-    if (num % i === 0) return false;  
+    if (num % i === 0) return false;
   }
   return true;
 };
@@ -139,14 +139,28 @@ const RsaComponent = () => {
 
   const handleEncrypt = () => {
     if (message && e && n) {
-      const messageNumbers = message.split("").map((char) => char.charCodeAt(0));
+      const messageNumbers = message.match(/\d+|\S|\s/g)?.map((part) => {
+        if (part === " ") return " ";
+        return isNaN(part) ? part.charCodeAt(0) : parseInt(part);
+      });
+
+      if (!messageNumbers) {
+        alert("Message could not be parsed correctly. Please try again.");
+        return;
+      }
 
       const encryptedNumbers = [];
       const steps = [];
+
       messageNumbers.forEach((m) => {
-        const encrypted = encrypt(m, e, n);
-        encryptedNumbers.push(encrypted);
-        steps.push(<span className="step">C = {m}<sup>{e}</sup> mod {n} = {encrypted}</span>);
+        if (m === " ") {
+          encryptedNumbers.push(" ");
+          steps.push(<span className="step">Space remains unchanged</span>);
+        } else {
+          const encrypted = encrypt(m, e, n);
+          encryptedNumbers.push(encrypted);
+          steps.push(<span className="step">C = {m}<sup>{e}</sup> mod {n} = {encrypted}</span>);
+        }
       });
 
       setCipherText(encryptedNumbers);
@@ -158,19 +172,33 @@ const RsaComponent = () => {
 
   const handleDecrypt = () => {
     if (decryptInput && d && n) {
-      const encryptedValues = decryptInput.replace(/\[|\]/g, "").split(",").map(Number);
+      const encryptedValues = decryptInput.replace(/\[|\]/g, "").split(",").map((part) => (part.trim() === "" ? " " : part.trim()));
       const decryptedNumbers = [];
       const steps = [];
 
       encryptedValues.forEach((c) => {
-        const decrypted = decrypt(c, d, n);
-        decryptedNumbers.push(decrypted);
-        steps.push(<span className="step">M = {c}<sup>{d}</sup> mod {n} = {decrypted}</span>);
+        if (c === " ") {
+          decryptedNumbers.push(" ");
+          steps.push(<span className="step">Space remains unchanged</span>);
+        } else {
+          const decrypted = decrypt(c, d, n);
+          decryptedNumbers.push(decrypted);
+          steps.push(<span className="step">M = {c}<sup>{d}</sup> mod {n} = {decrypted}</span>);
+        }
       });
 
-      const decryptedChars = decryptedNumbers.map((m) => {
+      const decryptedChars = decryptedNumbers.map((m, index) => {
+        if (m === " ") return " ";
+        const originalPart = message.match(/\d+|\S|\s/g)[index]; // Get corresponding original part
         const num = parseInt(m);
-        return num >= 32 && num <= 126 ? String.fromCharCode(num) : '?';
+
+        if (!isNaN(num) && num >= 32 && num <= 126 && isNaN(originalPart)) {
+          return String.fromCharCode(num); // Convert valid ASCII codes to characters
+        } else if (!isNaN(num) && !isNaN(originalPart)) {
+          return originalPart; // Keep numeric parts as they are
+        } else {
+          return "?"; // Handle unexpected cases
+        }
       });
 
       setDecryptedMessage(decryptedChars.join(""));
