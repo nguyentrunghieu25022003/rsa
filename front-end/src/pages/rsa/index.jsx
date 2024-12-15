@@ -92,6 +92,7 @@ const RsaComponent = () => {
   const [decryptInput, setDecryptInput] = useState("");
   const [useRandomE, setUseRandomE] = useState(true);
   const [modInverseSteps, setModInverseSteps] = useState([]);
+  const [encs, setEncs] = useState([]);
 
   const calculateRSA = () => {
     const pNum = parseInt(p);
@@ -149,15 +150,18 @@ const RsaComponent = () => {
         return;
       }
 
+      const updatedEncs = [];
       const encryptedNumbers = [];
       const steps = [];
 
       messageNumbers.forEach((m) => {
         if (m === " ") {
           encryptedNumbers.push(" ");
+          updatedEncs.push("");
           steps.push(<span className="step">Space remains unchanged</span>);
         } else {
           const encrypted = encrypt(m, e, n);
+          updatedEncs.push(encrypted);
           encryptedNumbers.push(encrypted);
           steps.push(<span className="step">C = {m}<sup>{e}</sup> mod {n} = {encrypted}</span>);
         }
@@ -165,6 +169,7 @@ const RsaComponent = () => {
 
       setCipherText(encryptedNumbers);
       setEncryptionSteps(steps);
+      setEncs(updatedEncs);
     } else {
       alert("Error, please check again");
     }
@@ -172,14 +177,25 @@ const RsaComponent = () => {
 
   const handleDecrypt = () => {
     if (decryptInput && d && n) {
-      const encryptedValues = decryptInput.replace(/\[|\]/g, "").split(",").map((part) => (part.trim() === "" ? " " : part.trim()));
+      const encryptedValues = decryptInput.replace(/\[|\]/g, "").split(",").map((part) => part.trim());
       const decryptedNumbers = [];
       const steps = [];
 
-      encryptedValues.forEach((c) => {
+      const isValid = encryptedValues.every((c, index) => c === encs[index]);
+      if (!isValid) {
+        alert("Decryption failed: Ciphertext does not match the original encryption.");
+        setDecryptedMessage("");
+        setDecryptionSteps([]);
+        return;
+      }
+
+      encryptedValues.forEach((c, index) => {
         if (c === " ") {
           decryptedNumbers.push(" ");
           steps.push(<span className="step">Space remains unchanged</span>);
+        } else if (isNaN(c) || parseInt(c) < 0 || parseInt(c) >= n) {
+          alert(`Invalid ciphertext value at position ${index + 1}: ${c}`);
+          return;
         } else {
           const decrypted = decrypt(c, d, n);
           decryptedNumbers.push(decrypted);
@@ -191,7 +207,7 @@ const RsaComponent = () => {
         if (m === " ") return " ";
         const originalPart = message.match(/\d+|\S|\s/g)[index];
         const num = parseInt(m);
-
+  
         if (!isNaN(num) && num >= 32 && num <= 126 && isNaN(originalPart)) {
           return String.fromCharCode(num);
         } else if (!isNaN(num) && !isNaN(originalPart)) {
@@ -200,15 +216,15 @@ const RsaComponent = () => {
           return "?";
         }
       });
-
+  
       const decryptedMessage = decryptedChars.join("");
       setDecryptedMessage(decryptedMessage);
       setDecryptionSteps(steps);
     } else {
-      alert("Error, please check again");
+      alert("Error, please check your input or RSA parameters.");
     }
   };
-
+  
   return (
     <div style={{ padding: "20px" }}>
       <div className="mb-4">
