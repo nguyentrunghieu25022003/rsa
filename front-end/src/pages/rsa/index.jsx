@@ -244,8 +244,32 @@ const RsaComponent = () => {
     }
   };
 
+  const resetAll = () => {
+    setP("");
+    setQ("");
+    setE("");
+    setN(null);
+    setPhi(null);
+    setD(null);
+    setPublicKey({});
+    setPrivateKey({});
+    setMessage("");
+    setCipherText([]);
+    setDecryptedMessage("");
+    setEncryptionSteps([]);
+    setDecryptionSteps([]);
+    setDecryptInput("");
+    setModInverseSteps([]);
+    setEncs([]);
+  };  
+
   return (
     <div style={{ padding: "20px" }}>
+      <div className="text-center mt-5 mb-5">
+        <button className="bg-danger fs-5" onClick={resetAll}>
+          Reset All
+        </button>
+      </div>
       <div className="mb-4">
         <label className="fs-5 fw-normal">
           Enter p:
